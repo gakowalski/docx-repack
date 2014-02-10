@@ -53,6 +53,12 @@ if exist "%MEDIA_FOLDER%" (
 "%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\*.png 
 )
 
+rem Thumbnail folder for ODS files
+set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\Thumbnails
+if exist "%MEDIA_FOLDER%" (
+"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\*.png 
+)
+
 :optimize_jpeg
 if not exist "%JPG_OPTIMIZER%" goto compress
 
