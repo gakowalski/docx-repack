@@ -5,6 +5,10 @@ rem AUTHOR: grzegorz.kowalski@wit.edu.pl, grzegorz.kowalski@pot.gov.pl
 rem Path to 7-zip executable
 set COMPRESSOR=c:\Program Files\7-Zip\7z.exe
 
+rem Path to Touch utility
+set TOUCH_UTILITY=c:\IT\touch.exe
+set TOUCH_OPTIONS=-c -r %1.bak %1
+
 rem Path to PNG optimizer
 set PNG_OPTIMIZER=c:\IT\optipng-0.7.4-win32\optipng.exe
 
@@ -14,9 +18,6 @@ set JPG_OPTIMIZER=c:\IT\jpegtran.exe
 rem Folder name with leading backslash
 set TEMP_SUBFOLDER=\Docx-Repack
 
-rem Some default options
-set CONFIG_MAKE_BACKUP=Yes
-
 if not exist %1 goto label_no_input
 
 :decompress
@@ -24,7 +25,8 @@ if not exist "%COMPRESSOR%" goto label_no_compressor
 "%COMPRESSOR%" x -y -tzip %1 -o%TEMP%%TEMP_SUBFOLDER%
 
 :make_backup
-if "%CONFIG_MAKE_BACKUP%"=="Yes" move %1 %1.bak
+if exist %1.bak del %1.bak
+move %1 %1.bak
 
 :optimize_png
 if not exist "%PNG_OPTIMIZER%" goto optimize_jpeg
@@ -92,6 +94,9 @@ FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpg') DO %JPG_OPTIMIZER% -optimize %MEDI
 
 :compress
 "%COMPRESSOR%" a -tzip %1 -r %TEMP%%TEMP_SUBFOLDER%\* -mx=9 -mfb=258 -mm=Deflate -mpass=15
+
+:copy_modification_date
+if exist "%TOUCH_UTILITY%" "%TOUCH_UTILITY%" %TOUCH_OPTIONS%
 
 :cleanup
 rmdir /S /Q %TEMP%%TEMP_SUBFOLDER%
