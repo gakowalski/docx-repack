@@ -1,6 +1,6 @@
 @echo off
 rem DOCX repacking script using 7zip
-rem AUTHOR: grzegorz.kowalski@wit.edu.pl, grzegorz.kowalski@pot.gov.pl
+rem AUTHOR: grzegorz.adam.kowalski@outlook.com, grzegorz.kowalski@wit.edu.pl
 
 rem Path to 7-zip executable
 set COMPRESSOR=c:\Program Files\7-Zip\7z.exe
