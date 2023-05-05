@@ -1,5 +1,14 @@
 <?php 
-$png_media_folders = Array(
+$_7z_cmd = 'dependencies/7z-22.01/7za.exe';
+$optipng_cmd = 'dependencies/optipng-0.7.7-win32/optipng.exe';
+$jpegtran_cmd = 'dependencies/jpegtran.exe';
+$touch_cmd = 'dependencies/touch.exe';
+
+function proper_directory_separator($path) {
+	return str_replace('/', DIRECTORY_SEPARATOR, $path);
+}
+
+$media_folders = Array(
 	'Media folder for DOCX files' => '\\word\\media',
 	'Media folder for PPTX files' => '\\ppt\\media',
 	'Media folder for XLSX files' => '\\xl\\media',
@@ -8,25 +17,26 @@ $png_media_folders = Array(
 );
 ?>@echo off
 rem DOCX repacking script using 7zip
-rem AUTHOR: grzegorz.adam.kowalski@outlook.com, grzegorz.kowalski@wit.edu.pl
+rem AUTHOR: grzegorz.adam.kowalski@outlook.com, grzegorz.adam.kowalski@gmail.com
 
 rem Path to 7-zip executable
-set COMPRESSOR=c:\Program Files\7-Zip\7z.exe
+set COMPRESSOR=<?= proper_directory_separator($_7z_cmd) ?>
 
 rem Path to Touch utility
-set TOUCH_UTILITY=c:\IT\touch.exe
+set TOUCH_UTILITY=<?= proper_directory_separator($touch_cmd) ?>
+
 set TOUCH_OPTIONS=-c -r %1.bak %1
 
 rem Path to PNG optimizer
-set PNG_OPTIMIZER=c:\IT\optipng-0.7.4-win32\optipng.exe
+set PNG_OPTIMIZER=<?= proper_directory_separator($optipng_cmd) ?>
 
 rem Path to JPEG optimizer executable
-set JPG_OPTIMIZER=c:\IT\jpegtran.exe
+set JPG_OPTIMIZER=<?= proper_directory_separator($jpegtran_cmd) ?>
 
 rem Folder name with leading backslash
 set TEMP_SUBFOLDER=\Docx-Repack
 
-if not exist %1 goto label_no_input
+if not exist "%1" goto label_no_input
 
 :decompress
 if not exist "%COMPRESSOR%" goto label_no_compressor
@@ -39,46 +49,35 @@ move %1 %1.bak
 :optimize_png
 if not exist "%PNG_OPTIMIZER%" goto optimize_jpeg
 
-<?php foreach ($png_media_folders as $comment => $folder): ?>
+<?php foreach ($media_folders as $comment => $folder): ?>
 rem <?php echo $comment; ?>
 
 set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%<?php echo $folder; ?>
 
 if exist "%MEDIA_FOLDER%" (
-"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\*.png 
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.png') DO (
+		echo "%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+		"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+	)
 )
 
 <?php endforeach; ?>
+
 :optimize_jpeg
 if not exist "%JPG_OPTIMIZER%" goto compress
 
-rem Media folder for DOCX files
-set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\word\media
-if exist "%MEDIA_FOLDER%" (
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpeg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-)
+<?php foreach ($media_folders as $comment => $folder): ?>
+rem <?php echo $comment; ?>
 
-rem Media folder for PPTX files
-set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\ppt\media
-if exist "%MEDIA_FOLDER%" (
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpeg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-)
+set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%<?php echo $folder; ?>
 
-rem Media folder for XLSX files
-set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\xl\media
 if exist "%MEDIA_FOLDER%" (
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpeg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jp*') DO (
+		echo %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+		%JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	)
 )
-
-rem Media folder for ODT files
-set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\media
-if exist "%MEDIA_FOLDER%" (
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpeg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-)
+<?php endforeach; ?>
 
 :compress
 "%COMPRESSOR%" a -tzip %1 -r %TEMP%%TEMP_SUBFOLDER%\* -mx=9 -mfb=258 -mm=Deflate -mpass=15

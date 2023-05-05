@@ -1,24 +1,21 @@
 @echo off
 rem DOCX repacking script using 7zip
-rem AUTHOR: grzegorz.adam.kowalski@outlook.com, grzegorz.kowalski@wit.edu.pl
+rem AUTHOR: grzegorz.adam.kowalski@outlook.com, grzegorz.adam.kowalski@gmail.com
 
 rem Path to 7-zip executable
-set COMPRESSOR=c:\Program Files\7-Zip\7z.exe
-
+set COMPRESSOR=dependencies\7z-22.01\7za.exe
 rem Path to Touch utility
-set TOUCH_UTILITY=c:\IT\touch.exe
+set TOUCH_UTILITY=dependencies\touch.exe
 set TOUCH_OPTIONS=-c -r %1.bak %1
 
 rem Path to PNG optimizer
-set PNG_OPTIMIZER=c:\IT\optipng-0.7.4-win32\optipng.exe
-
+set PNG_OPTIMIZER=dependencies\optipng-0.7.7-win32\optipng.exe
 rem Path to JPEG optimizer executable
-set JPG_OPTIMIZER=c:\IT\jpegtran.exe
-
+set JPG_OPTIMIZER=dependencies\jpegtran.exe
 rem Folder name with leading backslash
 set TEMP_SUBFOLDER=\Docx-Repack
 
-if not exist %1 goto label_no_input
+if not exist "%1" goto label_no_input
 
 :decompress
 if not exist "%COMPRESSOR%" goto label_no_compressor
@@ -34,32 +31,48 @@ if not exist "%PNG_OPTIMIZER%" goto optimize_jpeg
 rem Media folder for DOCX files
 set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\word\media
 if exist "%MEDIA_FOLDER%" (
-"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\*.png 
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.png') DO (
+		echo "%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+		"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+	)
 )
 
 rem Media folder for PPTX files
 set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\ppt\media
 if exist "%MEDIA_FOLDER%" (
-"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\*.png 
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.png') DO (
+		echo "%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+		"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+	)
 )
 
 rem Media folder for XLSX files
 set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\xl\media
 if exist "%MEDIA_FOLDER%" (
-"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\*.png 
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.png') DO (
+		echo "%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+		"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+	)
 )
 
 rem Media folder for ODT files
 set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\media
 if exist "%MEDIA_FOLDER%" (
-"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\*.png 
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.png') DO (
+		echo "%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+		"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+	)
 )
 
 rem Thumbnail folder for ODS files
 set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\Thumbnails
 if exist "%MEDIA_FOLDER%" (
-"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\*.png 
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.png') DO (
+		echo "%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+		"%PNG_OPTIMIZER%" --preserve -o5 %MEDIA_FOLDER%\%%j
+	)
 )
+
 
 :optimize_jpeg
 if not exist "%JPG_OPTIMIZER%" goto compress
@@ -67,29 +80,42 @@ if not exist "%JPG_OPTIMIZER%" goto compress
 rem Media folder for DOCX files
 set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\word\media
 if exist "%MEDIA_FOLDER%" (
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpeg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jp*') DO (
+		echo %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+		%JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	)
 )
-
 rem Media folder for PPTX files
 set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\ppt\media
 if exist "%MEDIA_FOLDER%" (
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpeg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jp*') DO (
+		echo %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+		%JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	)
 )
-
 rem Media folder for XLSX files
 set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\xl\media
 if exist "%MEDIA_FOLDER%" (
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpeg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jp*') DO (
+		echo %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+		%JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	)
 )
-
 rem Media folder for ODT files
 set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\media
 if exist "%MEDIA_FOLDER%" (
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpeg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
-FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jpg') DO %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jp*') DO (
+		echo %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+		%JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	)
+)
+rem Thumbnail folder for ODS files
+set MEDIA_FOLDER=%TEMP%%TEMP_SUBFOLDER%\Thumbnails
+if exist "%MEDIA_FOLDER%" (
+	FOR /F %%j IN ('dir /B %MEDIA_FOLDER%\*.jp*') DO (
+		echo %JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+		%JPG_OPTIMIZER% -optimize %MEDIA_FOLDER%\%%j %MEDIA_FOLDER%\%%j
+	)
 )
 
 :compress
