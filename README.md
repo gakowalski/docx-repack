@@ -14,6 +14,16 @@ Optional (for image optimization):
 * [OptiPNG](http://optipng.sourceforge.net/)
 * [jpegtrans](http://jpegclub.org/jpegtran/).
 
+Usage
+=====
+
+```
+repack.bat target_file.docx
+```
+
+Original file will be renamed to `target_file.docx.bak`.
+
+
 To-Do-List
 ==========
 
